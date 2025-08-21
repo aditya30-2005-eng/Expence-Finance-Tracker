@@ -14,13 +14,17 @@ function App() {
   const [expenses, setExpenses] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
 
+  // ✅ API Base URL (local + production दोनों के लिए)
+  const API_BASE =
+    process.env.REACT_APP_API_URL || "http://localhost:5000/api/expenses";
+
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   const fetchExpenses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/expenses");
+      const res = await axios.get(API_BASE);
       setExpenses(res.data);
     } catch (err) {
       console.error("Error fetching expenses:", err);
@@ -29,7 +33,7 @@ function App() {
 
   const addExpense = async (expense) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/expenses", {
+      const res = await axios.post(API_BASE, {
         title: expense.title,
         amount: Number(expense.amount),
         type: expense.type,
@@ -42,7 +46,7 @@ function App() {
 
   const deleteExpense = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/expenses/${id}`);
+      await axios.delete(`${API_BASE}/${id}`);
       setExpenses((prev) => prev.filter((exp) => exp._id !== id));
     } catch (err) {
       console.error("Error deleting expense:", err);
