@@ -1,9 +1,19 @@
 import React from "react";
+import API from "../api";
 
 export default function ExpenseList({ expenses = [], onDelete }) {
   if (!expenses.length) {
     return <p className="text-muted">No expenses yet.</p>;
   }
+
+  const deleteHandler = async (id) => {
+    try {
+      await API.delete(`/expenses/${id}`);
+      onDelete(id);
+    } catch (error) {
+      console.error("❌ Error deleting expense:", error);
+    }
+  };
 
   return (
     <ul className="expense-list">
@@ -13,7 +23,7 @@ export default function ExpenseList({ expenses = [], onDelete }) {
           <span>₹{exp.amount}</span>
           <button
             className="delete-btn"
-            onClick={() => onDelete(exp._id)} // ✅ fix: use _id
+            onClick={() => deleteHandler(exp._id)}
             title="Delete"
           >
             ❌

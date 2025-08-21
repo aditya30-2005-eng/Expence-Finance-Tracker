@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import API from "../api"; // ✅ api.js se import
 
 export default function ExpenseForm({ onAdd }) {
   const [title, setTitle] = useState("");
@@ -6,22 +7,26 @@ export default function ExpenseForm({ onAdd }) {
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("Other");
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     if (!title || !amount) return;
 
-    onAdd({
-      title,
-      amount: parseFloat(amount),
-      type,
-      category,
-      date: new Date(),
-    });
+    try {
+      const { data } = await API.post("/expenses", {
+        title,
+        amount: parseFloat(amount),
+        type,
+        category,
+      });
 
-    setTitle("");
-    setAmount("");
-    setType("expense");
-    setCategory("Other");
+      onAdd(data);
+      setTitle("");
+      setAmount("");
+      setType("expense");
+      setCategory("Other");
+    } catch (error) {
+      console.error("❌ Error adding expense:", error);
+    }
   };
 
   return (
@@ -51,10 +56,9 @@ export default function ExpenseForm({ onAdd }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={
-            type === "income"
-              ? "e.g. Salary, Bonus"
-              : "e.g. Groceries, Rent"
+            type === "income" ? "e.g. Salary, Bonus" : "e.g. Groceries, Rent"
           }
+          required
         />
       </div>
 
@@ -66,6 +70,7 @@ export default function ExpenseForm({ onAdd }) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="e.g. 5000"
+          required
         />
       </div>
 

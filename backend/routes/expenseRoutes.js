@@ -3,6 +3,7 @@ import Expense from "../models/Expense.js";
 
 const router = express.Router();
 
+// ✅ Get all expenses
 router.get("/", async (req, res) => {
   try {
     const expenses = await Expense.find().sort({ createdAt: -1 });
@@ -12,10 +13,11 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ✅ Add new expense
 router.post("/", async (req, res) => {
   try {
-    const { title, amount, type } = req.body;
-    const newExpense = new Expense({ title, amount, type });
+    const { title, amount, type, category } = req.body; // <-- category include
+    const newExpense = new Expense({ title, amount, type, category });
     const saved = await newExpense.save();
     res.json(saved);
   } catch (err) {
@@ -23,6 +25,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ✅ Delete expense
 router.delete("/:id", async (req, res) => {
   try {
     await Expense.findByIdAndDelete(req.params.id);

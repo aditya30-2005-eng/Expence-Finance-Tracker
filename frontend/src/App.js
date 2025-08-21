@@ -3,7 +3,7 @@ import { Container, Row, Col, Navbar, Nav, Card } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
-import axios from "axios";
+import API from "./api";   // ✅ API import
 import ExpenseForm from "./components/ExpenseForm";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseChart from "./components/ExpenseChart";
@@ -14,17 +14,13 @@ function App() {
   const [expenses, setExpenses] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
 
-  // ✅ API Base URL (local + production दोनों के लिए)
-  const API_BASE =
-    process.env.REACT_APP_API_URL || "http://localhost:5000/api/expenses";
-
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   const fetchExpenses = async () => {
     try {
-      const res = await axios.get(API_BASE);
+      const res = await API.get("/expenses");
       setExpenses(res.data);
     } catch (err) {
       console.error("Error fetching expenses:", err);
@@ -33,7 +29,7 @@ function App() {
 
   const addExpense = async (expense) => {
     try {
-      const res = await axios.post(API_BASE, {
+      const res = await API.post("/expenses", {
         title: expense.title,
         amount: Number(expense.amount),
         type: expense.type,
@@ -46,7 +42,7 @@ function App() {
 
   const deleteExpense = async (id) => {
     try {
-      await axios.delete(`${API_BASE}/${id}`);
+      await API.delete(`/expenses/${id}`);
       setExpenses((prev) => prev.filter((exp) => exp._id !== id));
     } catch (err) {
       console.error("Error deleting expense:", err);
