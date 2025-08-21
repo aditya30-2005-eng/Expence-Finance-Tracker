@@ -3,7 +3,7 @@ import { Container, Row, Col, Navbar, Nav, Card } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
-import API from "./api";   // ✅ API import
+import axios from "axios";
 import ExpenseForm from "./components/ExpenseForm";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseChart from "./components/ExpenseChart";
@@ -14,13 +14,15 @@ function App() {
   const [expenses, setExpenses] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
 
+  const API = "https://expense-tracker-backend.onrender.com/api/expenses";
+
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   const fetchExpenses = async () => {
     try {
-      const res = await API.get("/expenses");
+      const res = await axios.get(API);
       setExpenses(res.data);
     } catch (err) {
       console.error("Error fetching expenses:", err);
@@ -29,7 +31,7 @@ function App() {
 
   const addExpense = async (expense) => {
     try {
-      const res = await API.post("/expenses", {
+      const res = await axios.post(API, {
         title: expense.title,
         amount: Number(expense.amount),
         type: expense.type,
@@ -42,7 +44,7 @@ function App() {
 
   const deleteExpense = async (id) => {
     try {
-      await API.delete(`/expenses/${id}`);
+      await axios.delete(`${API}/${id}`);
       setExpenses((prev) => prev.filter((exp) => exp._id !== id));
     } catch (err) {
       console.error("Error deleting expense:", err);
@@ -94,42 +96,45 @@ function App() {
           <Navbar.Brand as={Link} to="/" className="brand-text">
             <i className="bi bi-wallet2 me-2"></i> Expense Tracker
           </Navbar.Brand>
-          <Nav className="ms-auto align-items-center">
-            <Nav.Link as={Link} to="/">Dashboard</Nav.Link>
-            <Nav.Link as={Link} to="/add">Add Transaction</Nav.Link>
-            <Nav.Link as={Link} to="/reports">Reports</Nav.Link>
-            <button
-              className="toggle-btn"
-              onClick={() => setDarkMode(!darkMode)}
-            >
-              {darkMode ? "🌞" : "🌙"}
-            </button>
-            <Nav.Link disabled className="author">
-              By Aditya Kumar Singh
-            </Nav.Link>
-          </Nav>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto align-items-center">
+              <Nav.Link as={Link} to="/">Dashboard</Nav.Link>
+              <Nav.Link as={Link} to="/add">Add Transaction</Nav.Link>
+              <Nav.Link as={Link} to="/reports">Reports</Nav.Link>
+              <button
+                className="toggle-btn ms-2"
+                onClick={() => setDarkMode(!darkMode)}
+              >
+                {darkMode ? "🌞" : "🌙"}
+              </button>
+              <Nav.Link disabled className="author d-none d-md-block">
+                By Aditya Kumar Singh
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
         </Navbar>
 
-        <Container className="mt-5 mb-5 flex-grow-1">
+        <Container className="mt-4 mb-5 flex-grow-1">
           <Routes>
             <Route
               path="/"
               element={
                 <>
-                  <Row className="mb-4">
-                    <Col md={4}>
+                  <Row className="mb-3 g-3">
+                    <Col xs={12} md={4}>
                       <Card className="shadow-lg text-center p-3">
                         <h5>💰 Total Income</h5>
                         <h2 className="text-success">₹{income.toLocaleString()}</h2>
                       </Card>
                     </Col>
-                    <Col md={4}>
+                    <Col xs={12} md={4}>
                       <Card className="shadow-lg text-center p-3">
                         <h5>🛒 Total Expenses</h5>
                         <h2 className="text-danger">₹{expense.toLocaleString()}</h2>
                       </Card>
                     </Col>
-                    <Col md={4}>
+                    <Col xs={12} md={4}>
                       <Card className="shadow-lg text-center p-3">
                         <h5>📊 Balance</h5>
                         <h2 className={balance >= 0 ? "text-primary" : "text-danger"}>
@@ -140,10 +145,10 @@ function App() {
                   </Row>
 
                   <Row>
-                    <Col>
+                    <Col xs={12}>
                       <Card className="shadow-lg p-4">
                         <h5 className="mb-4">📈 Income vs Expenses</h5>
-                        <div style={{ height: "350px", width: "100%" }}>
+                        <div style={{ height: "300px", width: "100%" }}>
                           <Pie data={chartData} options={chartOptions} />
                         </div>
                       </Card>
@@ -156,8 +161,8 @@ function App() {
             <Route
               path="/add"
               element={
-                <Row>
-                  <Col md={6}>
+                <Row className="g-3">
+                  <Col xs={12} lg={6}>
                     <div className="card-glass animate__animated animate__fadeInLeft">
                       <h4 className="mb-3">➕ Add New Transaction</h4>
                       <ExpenseForm onAdd={addExpense} />
@@ -167,7 +172,7 @@ function App() {
                       <ExpenseList expenses={expenses} onDelete={deleteExpense} />
                     </div>
                   </Col>
-                  <Col md={6}>
+                  <Col xs={12} lg={6}>
                     <div className="card-glass animate__animated animate__fadeInRight">
                       <h4 className="mb-3">📊 Expense Chart</h4>
                       <ExpenseChart expenses={expenses} />
@@ -181,7 +186,7 @@ function App() {
           </Routes>
         </Container>
 
-        <footer className="footer">
+        <footer className="footer text-center p-3">
           © {new Date().getFullYear()} Expense Tracker | Built with ❤️ by{" "}
           <b>Aditya Kumar Singh</b>
         </footer>
