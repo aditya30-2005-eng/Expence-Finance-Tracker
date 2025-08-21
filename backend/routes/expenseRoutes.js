@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const expenses = await Expense.find();
+    const expenses = await Expense.find().sort({ createdAt: -1 });
     res.json(expenses);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -14,7 +14,8 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const newExpense = new Expense(req.body);
+    const { title, amount, type } = req.body;
+    const newExpense = new Expense({ title, amount, type });
     const saved = await newExpense.save();
     res.json(saved);
   } catch (err) {
